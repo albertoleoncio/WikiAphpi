@@ -46,7 +46,7 @@ class WikiAphpiUnlogged implements WikiAphpiInterface
         $ch = curl_init();
 
         // making sure to request the right format
-        $params['format'] = 'php';
+        $params['format'] = 'json';
 
         // set the request type and parameters
         if ($isPost) {
@@ -73,9 +73,9 @@ class WikiAphpiUnlogged implements WikiAphpiInterface
 
         // close the curl handle and return the result
         curl_close($ch);
-        $result2 = @unserialize($result);
-        if ($result2 === false) {
-            throw new InvalidArgumentException("Error unserializing. API' format is PHP?");
+        $result2 = @json_decode($result, true);
+        if ($result2 === null) {
+            throw new InvalidArgumentException("Error decoding JSON. API' format is JSON?");
         }
 
         return $result2;
@@ -136,7 +136,7 @@ class WikiAphpiLogged implements WikiAphpiInterface
         $path = posix_getpwuid(posix_getuid())['dir']."/".$this->userAPI.".inc";
 
         // making sure to request the right format
-        $params['format'] = 'php';
+        $params['format'] = 'json';
 
         // set the request type and parameters
         if ($isPost) {
@@ -165,9 +165,9 @@ class WikiAphpiLogged implements WikiAphpiInterface
 
         // close the curl handle and return the result
         curl_close($ch);
-        $result2 = @unserialize($result);
-        if ($result2 === false) {
-            throw new InvalidArgumentException("Error unserializing. API' format is PHP?");
+        $result2 = @json_decode($result, true);
+        if ($result2 === null) {
+            throw new InvalidArgumentException("Error decoding JSON. API' format is JSON?");
         }
 
         return $result2;
@@ -186,7 +186,7 @@ class WikiAphpiLogged implements WikiAphpiInterface
             "action"    => "query",
             "meta"      => "userinfo",
             "uiprop"    => "rights",
-            "format"    => "php",
+            "format"    => "json",
             "maxlag"    => "5"
         ];
         $logged_api = $this->performRequest($logged_params, false);
@@ -206,7 +206,7 @@ class WikiAphpiLogged implements WikiAphpiInterface
             "action"    => "query",
             "meta"      => "tokens",
             "type"      => "login",
-            "format"    => "php"
+            "format"    => "json"
         ];
         $token_api = $this->performRequest($token_params, false);
         $token = $token_api["query"]["tokens"]["logintoken"] ?? false;
@@ -222,7 +222,7 @@ class WikiAphpiLogged implements WikiAphpiInterface
             "lgname"        => $this->userAPI,
             "lgpassword"    => $this->passAPI,
             "lgtoken"       => $token,
-            "format"        => "php"
+            "format"        => "json"
         ];
         $login_api = $this->performRequest($login_params, true);
         $logged_username = $login_api["login"]["lgusername"] ?? false;
@@ -272,7 +272,7 @@ class WikiAphpiTest implements WikiAphpiInterface
         $ch = curl_init();
 
         // making sure to request the right format
-        $params['format'] = 'php';
+        $params['format'] = 'json';
 
         // set the request type and parameters
         if ($isPost) {
@@ -299,9 +299,9 @@ class WikiAphpiTest implements WikiAphpiInterface
 
         // close the curl handle and return the result
         curl_close($ch);
-        $result2 = @unserialize($result);
-        if ($result2 === false) {
-            throw new InvalidArgumentException("Error unserializing. API' format is PHP?");
+        $result2 = @json_decode($result, true);
+        if ($result2 === null) {
+            throw new InvalidArgumentException("Error decoding JSON. API' format is JSON?");
         }
 
         return $result2;
@@ -366,8 +366,8 @@ class WikiAphpiOAuth implements WikiAphpiInterface
      * Sends a cURL request to the specified endpoint with the provided parameters.
      *
      * This method sends a cURL request to the specified endpoint with the provided parameters and returns the response
-     * in PHP format. It prepares headers, sets the request type and parameters, and handles any errors that occur during
-     * the cURL request. Additionally, it unserializes the result to PHP format if possible.
+     * in JSON format. It prepares headers, sets the request type and parameters, and handles any errors that occur during
+     * the cURL request. Additionally, it decodes the result from JSON format if possible.
      *
      * @param array $params   The parameters for the API request.
      * @param bool  $isPost   A boolean indicating whether the request is a POST request.
@@ -376,7 +376,7 @@ class WikiAphpiOAuth implements WikiAphpiInterface
      * @return array The response from the API request in PHP format.
      *
      * @throws ContentRetrievalException If there is an error during the cURL request.
-     * @throws InvalidArgumentException If the API response cannot be unserialized to PHP format.
+     * @throws InvalidArgumentException If the API response cannot be decoded from JSON format.
      */
     public function performRequest(array $params, bool $isPost, array $headers = []): array
     {
@@ -384,7 +384,7 @@ class WikiAphpiOAuth implements WikiAphpiInterface
         $ch = curl_init();
 
         // making sure to request the right format
-        $params['format'] = 'php';
+        $params['format'] = 'json';
 
         // prepare headers
         $oauthHeaders = array(
@@ -430,12 +430,12 @@ class WikiAphpiOAuth implements WikiAphpiInterface
 
         // close the curl handle and return the result
         curl_close($ch);
-        $unserializedResult = unserialize($result) ?? false;
-        if ($unserializedResult === false) {
-            throw new InvalidArgumentException("Error unserializing. API' format is PHP?");
+        $decodedResult = json_decode($result, true);
+        if ($decodedResult === null) {
+            throw new InvalidArgumentException("Error decoding JSON. API' format is JSON?");
         }
 
-        return $unserializedResult;
+        return $decodedResult;
     }
 
     /**

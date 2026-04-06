@@ -23,8 +23,8 @@ trait WikiAphpiSee
     /**
      * Get the content of a page
      *
-     * @param strint $page Page to be readed.
-     * @param strint $section Section to be readed.
+     * @param string $page Page to be readed.
+     * @param string $section Section to be readed.
      * @return string Content of the page.
      */
     public function get($page, $section = false)
@@ -39,7 +39,7 @@ trait WikiAphpiSee
             "rvprop"        => "content",
             "rvslots"       => "main",
             "formatversion" => "2",
-            "format"        => "php"
+            "format"        => "json"
         ];
         if (is_numeric($section)) $params['rvsection'] = $section;
         $resultApi = $this->see($params);
@@ -56,7 +56,7 @@ trait WikiAphpiSee
     /**
      * Get the content of a page divided in sections
      *
-     * @param strint $page Page to be readed.
+     * @param string $page Page to be readed.
      * @return array Content of the page.
      */
     public function getSections($page)
@@ -76,7 +76,7 @@ trait WikiAphpiSee
                 "rvslots"       => "main",
                 "formatversion" => "2",
                 "rvsection"     => $section,
-                "format"        => "php"
+                "format"        => "json"
             ];
 
             $result = $this->see($params);
@@ -109,7 +109,7 @@ trait WikiAphpiSee
         $params = [
             "action"    => "query",
             "meta"      => "tokens",
-            "format"    => "php"
+            "format"    => "json"
         ];
         $resultApi = $this->see($params);
         $result = $resultApi["query"]["tokens"]["csrftoken"] ?? false;
@@ -133,7 +133,7 @@ trait WikiAphpiSee
         //Coleta token
         $params = [
             'action'    => 'query',
-            'format'    => 'php',
+            'format'    => 'json',
             'titles'    => $page,
             'redirects' => '1'
         ];
@@ -155,7 +155,7 @@ trait WikiAphpiSee
     {
         $params = [
             'action'        => 'query',
-            'format'        => 'php',
+            'format'        => 'json',
             'titles'        => $page,
             "formatversion" => "2"
         ];

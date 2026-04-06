@@ -43,7 +43,7 @@ trait WikiAphpiDo
             "text"          => $text,
             "summary"       => $summary,
             "token"         => $this->getCsrfToken(),
-            "format"        => "php"
+            "format"        => "json"
         ];
 
         //Caso parâmetro de sessão para edição tenha sido informado
@@ -95,7 +95,7 @@ trait WikiAphpiDo
             "title"         => $page,
             "reason"        => $reason,
             "token"         => $this->getCsrfToken(),
-            "format"        => "php"
+            "format"        => "json"
         ];
         $resultApi = $this->performRequest($params, true);
         $result = $resultApi['delete']["logid"] ?? false;
@@ -125,7 +125,7 @@ trait WikiAphpiDo
             "reason"        => $reason,
             "movetalk"      => $moveTalk,
             "token"         => $this->getCsrfToken(),
-            "format"        => "php"
+            "format"        => "json"
         ];
         $resultApi = $this->performRequest($params, true);
         $result = $resultApi['move']["to"] ?? false;
@@ -157,7 +157,7 @@ trait WikiAphpiDo
             "action"    => "query",
             "meta"      => "siteinfo",
             "siprop"    => "general|fileextensions",
-            "format"    => "php"
+            "format"    => "json"
         ];
 
         $siteinfo_api = $this->performRequest($params_siteinfo, false);
@@ -196,7 +196,7 @@ trait WikiAphpiDo
             "file"          => curl_file_create($location, mime_content_type($location), $page),
             "token"         => csrfAPI($userAPI),
             "ignorewarnings"=> "1",
-            "format"        => "php"
+            "format"        => "json"
         ];
 
         $upload_api = $this->performRequest($params_upload, true, array('Content-type: multipart/form-data'));
