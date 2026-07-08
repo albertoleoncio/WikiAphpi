@@ -72,7 +72,6 @@ class WikiAphpiUnlogged implements WikiAphpiInterface
         }
 
         // close the curl handle and return the result
-        curl_close($ch);
         $result2 = @json_decode($result, true);
         if ($result2 === null) {
             throw new InvalidArgumentException("Error decoding JSON. API' format is JSON?");
@@ -164,7 +163,6 @@ class WikiAphpiLogged implements WikiAphpiInterface
         }
 
         // close the curl handle and return the result
-        curl_close($ch);
         $result2 = @json_decode($result, true);
         if ($result2 === null) {
             throw new InvalidArgumentException("Error decoding JSON. API' format is JSON?");
@@ -276,7 +274,6 @@ class WikiAphpiTest implements WikiAphpiInterface
 
         // set the request type and parameters
         if ($isPost) {
-            curl_close($ch);
             return [];
         } else {
             $url .= "?" . http_build_query($params);
@@ -298,7 +295,6 @@ class WikiAphpiTest implements WikiAphpiInterface
         }
 
         // close the curl handle and return the result
-        curl_close($ch);
         $result2 = @json_decode($result, true);
         if ($result2 === null) {
             throw new InvalidArgumentException("Error decoding JSON. API' format is JSON?");
@@ -429,7 +425,6 @@ class WikiAphpiOAuth implements WikiAphpiInterface
         }
 
         // close the curl handle and return the result
-        curl_close($ch);
         $decodedResult = json_decode($result, true);
         if ($decodedResult === null) {
             throw new InvalidArgumentException("Error decoding JSON. API' format is JSON?");

@@ -121,7 +121,6 @@ trait WikiAphpiBehalf
         if (!$data) {
             throw new ContentRetrievalException(['Curl error: ' . htmlspecialchars(curl_error($ch))]);
         }
-        curl_close($ch);
 
         // Decode the JSON response containing the request token.
         $token = json_decode($data);
@@ -197,7 +196,6 @@ trait WikiAphpiBehalf
         if ( !$data ) {
             throw new ContentRetrievalException(['Curl error: ' . htmlspecialchars(curl_error($ch))]);
         }
-        curl_close( $ch );
 
         // Decode the JSON response containing the access token
         $token = json_decode( $data );
@@ -271,7 +269,6 @@ trait WikiAphpiBehalf
         if ( !$data ) {
             throw new ContentRetrievalException(['Curl error: ' . htmlspecialchars( curl_error( $ch ) )]);
         }
-        curl_close($ch);
 
         // Check if the response indicates unauthorized access
         $err = json_decode( $data );
