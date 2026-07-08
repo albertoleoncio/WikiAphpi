@@ -65,6 +65,9 @@ class WikiAphpiUnlogged implements WikiAphpiInterface
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
+        // add user agent to avoid 403 errors
+        curl_setopt($ch, CURLOPT_USERAGENT, 'WikiAphpi/1.0 (https://github.com/albertoleoncio/WikiAphpi)');
+
         // execute the curl request and handle any errors
         $result = curl_exec($ch);
         if ($result === false) {
