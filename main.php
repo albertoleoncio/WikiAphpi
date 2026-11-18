@@ -150,8 +150,14 @@ class WikiAphpiLogged implements WikiAphpiInterface
         $params['format'] = 'json';
 
         // assert user is logged in
-        $params['assert'] = 'user';
-        $params['assertuser'] = $this->userAPI;
+        $isLoginRequest =
+            ($params['action'] ?? null) === 'login' ||
+            ($params['type'] ?? null) === 'login';
+
+        if (!$isLoginRequest) {
+            $params['assert'] = 'user';
+            $params['assertuser'] = strtok($this->userAPI, '@');
+        }
 
         // set the request type and parameters
         if ($isPost) {
@@ -191,32 +197,13 @@ class WikiAphpiLogged implements WikiAphpiInterface
      */
     private function login()
     {
-        //Verifica maxlag e usuário atual com base no cookie armazenado
-        $logged_params = [
-            "action"    => "query",
-            "meta"      => "userinfo",
-            "uiprop"    => "rights",
-            "format"    => "json",
-            "maxlag"    => "5"
-        ];
-        $logged_api = $this->performRequest($logged_params, false);
-        $logged_data = $logged_api["query"]["userinfo"] ?? false;
-
-        if ($logged_data === false) {
-            throw new ContentRetrievalException($logged_api);
-        }
-
-        //Retorna caso já exista sessão válida
-        if (!isset($logged_data["anon"])) {
-            return $logged_data["name"];
-        }
-
-        //Coleta token para login
+        //Verifica maxlag e coleta token para login
         $token_params = [
             "action"    => "query",
             "meta"      => "tokens",
             "type"      => "login",
-            "format"    => "json"
+            "format"    => "json",
+            "maxlag"    => "5"
         ];
         $token_api = $this->performRequest($token_params, false);
         $token = $token_api["query"]["tokens"]["logintoken"] ?? false;
