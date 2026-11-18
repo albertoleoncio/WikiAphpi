@@ -48,6 +48,9 @@ class WikiAphpiUnlogged implements WikiAphpiInterface
         // making sure to request the right format
         $params['format'] = 'json';
 
+        // assert user is logged out
+        $params['assert'] = 'anon';
+
         // set the request type and parameters
         if ($isPost) {
             curl_setopt($ch, CURLOPT_POST, 1);
@@ -99,6 +102,9 @@ class WikiAphpiLogged implements WikiAphpiInterface
 	/** @var string The base URL for API requests. */
     private $endpoint;
 
+    /** @var resource The cURL handle that keeps this client's cookies in memory. */
+    private $curlHandle;
+
     /** @var string The username to use for API requests. */
     private $userAPI;
 
@@ -134,30 +140,33 @@ class WikiAphpiLogged implements WikiAphpiInterface
     public function performRequest(array $params, bool $isPost, array $headers = []): array
     {
         $url = $this->endpoint;
-        $ch = curl_init();
-        $path = posix_getpwuid(posix_getuid())['dir']."/".$this->userAPI.".inc";
+        if ($this->curlHandle === null) {
+            $this->curlHandle = curl_init();
+            curl_setopt($this->curlHandle, CURLOPT_COOKIEFILE, '');
+        }
+        $ch = $this->curlHandle;
 
         // making sure to request the right format
         $params['format'] = 'json';
+
+        // assert user is logged in
+        $params['assert'] = 'user';
+        $params['assertuser'] = $this->userAPI;
 
         // set the request type and parameters
         if ($isPost) {
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
         } else {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, null);
+            curl_setopt($ch, CURLOPT_HTTPGET, true);
             $url .= "?" . http_build_query($params);
         }
 
-        // optional for specific headers
-        if (!empty($headers)) {
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        }
-
         // set other curl options as needed
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_COOKIEJAR, $path);
-        curl_setopt($ch, CURLOPT_COOKIEFILE, $path);
 
         // execute the curl request and handle any errors
         $result = curl_exec($ch);
@@ -165,7 +174,7 @@ class WikiAphpiLogged implements WikiAphpiInterface
             throw new ContentRetrievalException(curl_error($ch));
         }
 
-        // close the curl handle and return the result
+        // Keep the handle open so subsequent requests use the same in-memory cookies.
         $result2 = @json_decode($result, true);
         if ($result2 === null) {
             throw new InvalidArgumentException("Error decoding JSON. API' format is JSON?");
